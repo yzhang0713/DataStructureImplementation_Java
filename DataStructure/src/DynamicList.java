@@ -3,7 +3,7 @@ import java.util.StringJoiner;
 /**
  * This is the implementation of the dynamic list
  */
-public class DynamicList {
+public class DynamicList implements AbstractList {
 
     private int[] data;
     private int dataCount;
@@ -45,9 +45,7 @@ public class DynamicList {
             throw new RuntimeException("Index exceeds the upper limit of the dynamic list");
         }
         int temp = data[index];
-        for (int i = index; i < dataCount-1; i++) {
-            data[i] = data[i+1];
-        }
+        if (dataCount - 1 - index >= 0) System.arraycopy(data, index + 1, data, index, dataCount - 1 - index);
         dataCount--;
         if (dataCount <= arrayLength/4) {
             // The static array is too empty, need to shrink the array by half
@@ -67,10 +65,12 @@ public class DynamicList {
     // Helper method to resize the array
     private void resize(int updatedSize) {
         int[] copyData = new int[updatedSize];
-        for (int i = 0; i < dataCount; i++) {
-            copyData[i] = data[i];
-        }
+        if (dataCount >= 0) System.arraycopy(data, 0, copyData, 0, dataCount);
         data = copyData;
+    }
+
+    public boolean empty() {
+        return this.arrayLength == 0;
     }
 
     @Override
@@ -80,6 +80,39 @@ public class DynamicList {
             sj.add(Integer.toString(data[i]));
         }
         return sj.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        DynamicList other = (DynamicList) obj;
+        if (this.dataCount != other.size()) {
+            return false;
+        }
+        for (int i = 0; i < this.dataCount; i++) {
+            if (data[i] != other.get(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 37;
+        int result = 1;
+        for (int i = 0; i < this.dataCount; i++) {
+            result = prime * result + data[i];
+        }
+        return result;
     }
 
 }
